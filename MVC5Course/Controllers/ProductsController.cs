@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using MVC5Course.Models;
+using MVC5Course.Models.ViewModels;
 
 namespace MVC5Course.Controllers
 {
@@ -15,14 +16,18 @@ namespace MVC5Course.Controllers
         private FabricsEntities db = new FabricsEntities();
 
         // GET: Products
-        public ActionResult Index()
+        public ActionResult Index(bool Active =true)
         {
-            return View(db.Product.OrderByDescending(p => p.ProductId).Take(10));
+           //return View(db.Product.OrderByDescending(p => p.ProductId).Take(10));
+           var data = db.Product
+                .Where(p => p.Active.HasValue && p.Active.Value == Active)
+                .OrderByDescending(p => p.ProductId).Take(10);
+           return View(data);
         }
 
         // GET: Products/Details/5
         public ActionResult Details(int? id)
-        {
+        {//Modelbinding 模型繫節
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -122,6 +127,21 @@ namespace MVC5Course.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+        public ActionResult ListProducts()
+        {
+            var data = db.Product
+                .Where(p => p.Active == true)
+                .Select(p => new ProductLiteVM() {
+                    ProductId = p.ProductId,
+                    ProductName = p.ProductName,
+                    Stock =p.Stock,
+                    Price = p.Price
+                })
+                .Take(10);
+
+
+            return View(data);
         }
     }
 }
