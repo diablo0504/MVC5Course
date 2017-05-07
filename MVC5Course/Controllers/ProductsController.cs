@@ -143,5 +143,23 @@ namespace MVC5Course.Controllers
 
             return View(data);
         }
+
+        public ActionResult CreatProduct()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult CreatProduct([Bind(Include = "ProductId,ProductName,Price,Active,Stock")]ProductLiteVM data)
+        {
+
+            if (ModelState.IsValid)
+            {
+                // TODO: 儲存資料進資料庫
+                return RedirectToAction("ListProducts");
+            }
+            //// 驗證失敗，繼續顯示原本的表單
+            return View();
+        }
+
     }
 }
