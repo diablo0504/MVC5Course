@@ -8,6 +8,9 @@ using System.Web;
 using System.Web.Mvc;
 using MVC5Course.Models;
 using MVC5Course.Models.ViewModels;
+using System.Data.SqlClient;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Validation;
 
 namespace MVC5Course.Controllers
 {
@@ -16,6 +19,7 @@ namespace MVC5Course.Controllers
         //private FabricsEntities db = new FabricsEntities();
         ProductRepository repo = RepositoryHelper.GetProductRepository();
         // GET: Products
+        [OutputCache(Duration =5,Location =System.Web.UI.OutputCacheLocation.ServerAndClient)]
         public ActionResult Index(bool Active =true)
         {
             //return View(db.Product.OrderByDescending(p => p.ProductId).Take(10));
@@ -55,14 +59,15 @@ namespace MVC5Course.Controllers
         // 詳細資訊，請參閱 http://go.microsoft.com/fwlink/?LinkId=317598。
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HandleError(ExceptionType = typeof(DbUpdateException), View = "Error_DbUpdateException")]
         public ActionResult Create([Bind(Include = "ProductId,ProductName,Price,Active,Stock")] Product product)
         {
-            if (ModelState.IsValid)
-            {
+            //if (ModelState.IsValid)
+           // {
                 repo.Add(product);
                 repo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
-            }
+           // }
 
             return View(product);
         }
@@ -88,13 +93,17 @@ namespace MVC5Course.Controllers
         // 詳細資訊，請參閱 http://go.microsoft.com/fwlink/?LinkId=317598。
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ProductId,ProductName,Price,Active,Stock")] Product product)
+        public ActionResult Edit(int id,FormCollection form)
         {
-            if (ModelState.IsValid)
+            // [Bind(Include = "ProductId,ProductName,Price,Active,Stock")]
+            //  Product product
+            var product = repo.Get單筆資料ByProductId(id);
+            
+            if (TryUpdateModel<Product>(product,new string[] { "ProductId","ProductName","Price","Active","Stock" }))
             {
                 //db.Entry(product).State = EntityState.Modified;
                 //db.SaveChanges();
-                repo.Update(product);
+                //repo.Update(product);
                 repo.UnitOfWork.Commit();
                 
                 return RedirectToAction("Index");

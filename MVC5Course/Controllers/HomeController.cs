@@ -12,13 +12,15 @@ namespace MVC5Course.Controllers
         {
             return View();
         }
-
+        [SharedViewBag]
+        [LocalOnly]
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
+            //ViewBag.Message = "Your application description page.";
+            throw new ArgumentException("Error Handled!!");
+            //return View();
         }
+        [SharedViewBag(MyProperty = "")]
         public ActionResult PartialAbout()
         {
             ViewBag.Message = "Your application description page.";
@@ -63,6 +65,17 @@ namespace MVC5Course.Controllers
 
             //return View();
             return Json(db.Product.Take(5), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult VT()
+        {
+            ViewBag.IsEnabled = true;
+            return View();
+            //AutoHotKey
+        }
+        public ActionResult RazorTest()
+        {
+            ViewData.Model = new int[] { 1,2,3,4,5};
+            return PartialView(ViewData.Model);
         }
     }
 }

@@ -1,0 +1,21 @@
+﻿ @model int[]
+
+
+@foreach (var item3 in Model)
+{
+    @(item3)
+}
+
+
+@foreach (var item2 in Model)
+{
+    @(item2) @(" ");
+}
+
+
+<ul>
+@foreach (var item in Model)
+{
+  <li>@(item )</li>
+}
+</ul>
