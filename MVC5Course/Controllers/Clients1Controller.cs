@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using MVC5Course.Models;
+using PagedList;
 
 namespace MVC5Course.Controllers
 {
@@ -15,10 +16,34 @@ namespace MVC5Course.Controllers
         private FabricsEntities db = new FabricsEntities();
 
         // GET: Clients1
-        public ActionResult Index()
+        public ActionResult Index(int  CreditRatingFilter = -1,string LastNameFilter="",int pageNo=1)
         {
-            var client = db.Client.Include(c => c.Occupation);
-            return View(client.Take(10));
+            var ratings = (from p in db.Client
+
+                           select p.CreditRating).Distinct().OrderBy(p => p).ToList();
+            ViewBag.CreditRatingFilter = new SelectList(ratings);
+
+            var lastname = (from p in db.Client
+
+                           select p.LastName).Distinct().OrderBy(p => p).ToList();
+            ViewBag.LastNameFilter = new SelectList(lastname);
+
+            var data = db.Client.AsQueryable();
+
+            if (CreditRatingFilter >= 0)
+            {
+                data = data.Where(p => p.CreditRating == CreditRatingFilter);
+            }
+            if (!string.IsNullOrEmpty(LastNameFilter))
+            {
+
+                data = data.Where(p => p.LastName == LastNameFilter);
+            }
+
+            //ViewData.Model = data.Take(10);
+            ViewData.Model = data.OrderByDescending(p=>p.ClientId).ToPagedList(pageNo, 10);
+            //var client = db.Client.Include(c => c.Occupation);
+            return View();
         }
 
         // GET: Clients1/Details/5
@@ -73,6 +98,8 @@ namespace MVC5Course.Controllers
             {
                 return HttpNotFound();
             }
+            var items = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            ViewBag.CreditRating = new SelectList(items);
             ViewBag.OccupationId = new SelectList(db.Occupation, "OccupationId", "OccupationName", client.OccupationId);
             return View(client);
         }
